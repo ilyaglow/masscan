@@ -955,13 +955,15 @@ receive_thread(void *v)
              * This is where we do the output
              */
 
-            redisCommand(parms->masscan->red, "LPUSH hosts ['%u.%u.%u.%u',%u]",
-                (ip_them>>24)&0xFF,
-                (ip_them>>16)&0xFF,
-                (ip_them>> 8)&0xFF,
-                (ip_them>> 0)&0xFF,
-                port_them
-            );
+            if (status == PortStatus_Open) {
+                redisCommand(parms->masscan->red, "LPUSH hosts ['%u.%u.%u.%u',%u]",
+                    (ip_them>>24)&0xFF,
+                    (ip_them>>16)&0xFF,
+                    (ip_them>> 8)&0xFF,
+                    (ip_them>> 0)&0xFF,
+                    port_them
+                );
+            }
 
             output_report_status(
                         out,
