@@ -64,6 +64,8 @@
 #include <signal.h>
 #include <stdint.h>
 
+#include <hiredis/hiredis.h>
+
 #if defined(WIN32)
 #include <WinSock.h>
 #if defined(_MSC_VER)
@@ -952,6 +954,16 @@ receive_thread(void *v)
             /*
              * This is where we do the output
              */
+
+            redisCommand(parms->masscan->red,"LPUSH hosts %u.%u.%u.%u:%u",
+              (ip_them>>24)&0xFF,
+              (ip_them>>16)&0xFF,
+              (ip_them>> 8)&0xFF,
+              (ip_them>> 0)&0xFF,
+              port_them
+            );
+
+
             output_report_status(
                         out,
                         global_now,
@@ -1452,6 +1464,7 @@ main_scan(struct Masscan *masscan)
 int main(int argc, char *argv[])
 {
     struct Masscan masscan[1];
+
     unsigned i;
     
     usec_start = pixie_gettime();
@@ -1461,16 +1474,6 @@ int main(int argc, char *argv[])
 
     global_now = time(0);
 
-    /* Set system to report debug information on crash */
-    {
-        int is_backtrace = 1;
-        for (i=1; i<(unsigned)argc; i++) {
-            if (strcmp(argv[i], "--nobacktrace") == 0)
-                is_backtrace = 0;
-        }
-        if (is_backtrace)
-            pixie_backtrace_init(argv[0]);
-    }
     
     /*
      * Initialize those defaults that aren't zero
@@ -1521,6 +1524,11 @@ int main(int argc, char *argv[])
      */
     masscan_command_line(masscan, argc, argv);
 
+    masscan->red = redisConnect("localhost", 6379);
+    if (masscan->red->err) {
+      printf("Connection error: %s\n", masscan->red->errstr);
+      exit(1);
+    }
 
     /* We need to do a separate "raw socket" initialization step. This is
      * for Windows and PF_RING. */

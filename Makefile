@@ -13,7 +13,7 @@ endif
 # environment where things likely will work -- as well as anything
 # works on the bajillion of different Linux environments
 ifneq (, $(findstring linux, $(SYS)))
-LIBS = -lm -lrt -ldl -lpthread
+LIBS = -lm -lrt -ldl -lpthread -lhiredis
 INCLUDES =
 FLAGS2 = 
 endif

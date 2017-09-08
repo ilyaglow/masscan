@@ -10,6 +10,8 @@
 #include "ranges.h"
 #include "packet-queue.h"
 
+#include <hiredis/hiredis.h>
+
 struct Adapter;
 struct TemplateSet;
 struct Banner1;
@@ -392,8 +394,9 @@ struct Masscan
     struct {
         const char *name;
     } script;
-};
 
+    redisContext *red;
+};
 
 int mainconf_selftest(void);
 void masscan_read_config_file(struct Masscan *masscan, const char *filename);
