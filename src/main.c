@@ -956,7 +956,7 @@ receive_thread(void *v)
              */
 
             if (status == PortStatus_Open) {
-                redisCommand(parms->masscan->red, "LPUSH hosts ['%u.%u.%u.%u',%u]",
+                redisCommand(parms->masscan->red, "RPUSH hosts ['%u.%u.%u.%u',%u]",
                     (ip_them>>24)&0xFF,
                     (ip_them>>16)&0xFF,
                     (ip_them>> 8)&0xFF,
